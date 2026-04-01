@@ -1,11 +1,44 @@
 // ==========================================================================
 // ORBITAL WATCH — ISS Live Tracking Module
-// Ported from Mission Control — canvas map + telemetry
+// Canvas map with NASA Blue Marble Earth texture + telemetry
 // ==========================================================================
 
 (function () {
   const canvas = document.getElementById('iss-map-canvas');
   const ctx = canvas.getContext('2d');
+
+  // ── Earth texture loading ──
+  // NASA Blue Marble "Land Shallow Topo" — 2048×1024 equirectangular
+  // Public domain, bundled locally to avoid CORS and CDN dependency
+  let earthImg = null;
+  let earthLoaded = false;
+  let earthFailed = false;
+
+  function loadEarthTexture() {
+    const img = new Image();
+    img.onload = function () {
+      earthImg = img;
+      earthLoaded = true;
+      drawMap(); // redraw once texture is ready
+    };
+    img.onerror = function () {
+      earthFailed = true;
+      console.warn('Earth texture failed to load, using fallback');
+    };
+    img.src = './earth-2048.jpg';
+  }
+
+  loadEarthTexture();
+
+  // ── Fallback continents (used only if texture fails to load) ──
+  const CONTINENTS = [
+    { cx: 0.22, cy: 0.28, rx: 0.12, ry: 0.14 },
+    { cx: 0.30, cy: 0.58, rx: 0.06, ry: 0.16 },
+    { cx: 0.52, cy: 0.24, rx: 0.06, ry: 0.08 },
+    { cx: 0.53, cy: 0.48, rx: 0.07, ry: 0.16 },
+    { cx: 0.68, cy: 0.28, rx: 0.14, ry: 0.14 },
+    { cx: 0.82, cy: 0.62, rx: 0.06, ry: 0.06 },
+  ];
 
   function initISS() {
     canvas.width = canvas.clientWidth || canvas.offsetWidth || 600;
@@ -13,36 +46,59 @@
     drawMap();
   }
 
-  // ── Simplified continent outlines (equirectangular projection) ──
-  const CONTINENTS = [
-    // North America
-    { cx: 0.22, cy: 0.28, rx: 0.12, ry: 0.14 },
-    // South America
-    { cx: 0.30, cy: 0.58, rx: 0.06, ry: 0.16 },
-    // Europe
-    { cx: 0.52, cy: 0.24, rx: 0.06, ry: 0.08 },
-    // Africa
-    { cx: 0.53, cy: 0.48, rx: 0.07, ry: 0.16 },
-    // Asia
-    { cx: 0.68, cy: 0.28, rx: 0.14, ry: 0.14 },
-    // Australia
-    { cx: 0.82, cy: 0.62, rx: 0.06, ry: 0.06 },
-  ];
-
   function drawMap() {
     const w = canvas.width;
     const h = canvas.height;
+    const isMobile = w < 500;
     ctx.clearRect(0, 0, w, h);
 
-    // Background gradient (ocean)
-    const bg = ctx.createLinearGradient(0, 0, 0, h);
-    bg.addColorStop(0, '#06111a');
-    bg.addColorStop(1, '#091722');
-    ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, w, h);
+    // ── Layer 1: Earth base ──
+    if (earthLoaded && earthImg) {
+      // Draw the NASA Blue Marble texture, stretched to fill the canvas
+      ctx.drawImage(earthImg, 0, 0, w, h);
 
-    // Grid
-    ctx.strokeStyle = 'rgba(120, 220, 255, 0.06)';
+      // Dark overlay — keeps the space-noir aesthetic
+      // Slightly stronger on mobile for readability
+      ctx.fillStyle = isMobile ? 'rgba(3, 8, 14, 0.62)' : 'rgba(3, 8, 14, 0.55)';
+      ctx.fillRect(0, 0, w, h);
+
+      // Atmospheric edge glow (skip on mobile for perf)
+      if (!isMobile) {
+        // Top edge — subtle blue atmospheric haze
+        const topGlow = ctx.createLinearGradient(0, 0, 0, h * 0.15);
+        topGlow.addColorStop(0, 'rgba(40, 120, 200, 0.12)');
+        topGlow.addColorStop(1, 'rgba(40, 120, 200, 0)');
+        ctx.fillStyle = topGlow;
+        ctx.fillRect(0, 0, w, h * 0.15);
+
+        // Bottom edge — same atmospheric haze
+        const botGlow = ctx.createLinearGradient(0, h * 0.85, 0, h);
+        botGlow.addColorStop(0, 'rgba(40, 120, 200, 0)');
+        botGlow.addColorStop(1, 'rgba(40, 120, 200, 0.10)');
+        ctx.fillStyle = botGlow;
+        ctx.fillRect(0, h * 0.85, w, h * 0.15);
+      }
+    } else {
+      // Fallback: original gradient + ellipse continents
+      const bg = ctx.createLinearGradient(0, 0, 0, h);
+      bg.addColorStop(0, '#06111a');
+      bg.addColorStop(1, '#091722');
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.fillStyle = 'rgba(200, 235, 245, 0.12)';
+      for (const c of CONTINENTS) {
+        ctx.beginPath();
+        ctx.ellipse(w * c.cx, h * c.cy, w * c.rx, h * c.ry, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // ── Layer 2: Coordinate grid ──
+    // Reduced opacity over the texture — just enough to read as a grid
+    ctx.strokeStyle = earthLoaded
+      ? 'rgba(120, 220, 255, 0.04)'
+      : 'rgba(120, 220, 255, 0.06)';
     ctx.lineWidth = 0.5;
     for (let i = 0; i <= 12; i++) {
       const y = (h / 12) * i;
@@ -53,15 +109,7 @@
       ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
     }
 
-    // Continent masses
-    ctx.fillStyle = 'rgba(200, 235, 245, 0.12)';
-    for (const c of CONTINENTS) {
-      ctx.beginPath();
-      ctx.ellipse(w * c.cx, h * c.cy, w * c.rx, h * c.ry, 0, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    // ISS approximate ground track (sinusoidal)
+    // ── Layer 3: ISS approximate ground track (sinusoidal) ──
     ctx.strokeStyle = 'rgba(83, 247, 238, 0.35)';
     ctx.lineWidth = 2;
     ctx.setLineDash([4, 6]);
@@ -74,7 +122,7 @@
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // ISS marker
+    // ── Layer 4: ISS marker ──
     const lat = owData.iss.lat || 0;
     const lon = owData.iss.lon || 0;
     const px = ((lon + 180) / 360) * w;
