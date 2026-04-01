@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Orbital Watch — Space Situational Awareness</title>
+  <meta name="description" content="Real-time space situational awareness dashboard. Live ISS tracking, near-Earth objects, upcoming launches, and orbital activity.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@500;700;900&family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <canvas id="starfield"></canvas>
+
+  <div class="shell">
+    <!-- ── Header ── -->
+    <header class="hdr">
+      <div class="hdr-brand">
+        <svg class="hdr-logo" viewBox="0 0 36 36" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.2" aria-label="Orbital Watch logo">
+          <circle cx="18" cy="18" r="16" opacity="0.2"/>
+          <ellipse cx="18" cy="18" rx="14" ry="6" opacity="0.35" transform="rotate(-20 18 18)"/>
+          <ellipse cx="18" cy="18" rx="11" ry="4" opacity="0.45" transform="rotate(25 18 18)"/>
+          <circle cx="18" cy="18" r="3" fill="currentColor" stroke="none" opacity="0.8"/>
+          <circle cx="26" cy="12" r="1.5" fill="currentColor" stroke="none" opacity="0.6"/>
+        </svg>
+        <div>
+          <div class="hdr-wordmark">ORBITAL WATCH</div>
+          <div class="hdr-sub">Space Situational Awareness Dashboard</div>
+        </div>
+      </div>
+      <div class="hdr-right">
+        <div class="pill"><span class="dot"></span> Live data</div>
+        <div class="utc" id="clock">00:00:00 UTC</div>
+      </div>
+    </header>
+
+    <!-- ── Main content ── -->
+    <main class="layout">
+
+      <!-- ═══ HERO: Solar System Orrery ═══ -->
+      <section class="hero-section">
+        <div class="panel" id="panel-orrery">
+          <div class="panel-hdr">
+            <div>
+              <div class="eyebrow">Orbital Overview</div>
+              <h1 class="panel-title">Inner Solar System</h1>
+            </div>
+            <div class="meta" id="orrery-meta">NEO Trajectory Map</div>
+          </div>
+          <canvas id="orrery-canvas"></canvas>
+          <div class="panel-footer">
+            <span>SCALE: 2.0 AU</span>
+            <span id="orrery-track-count">TRACKS: --</span>
+            <span>VIEW: ECLIPTIC</span>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-tag"><span>Situation Board</span></div>
+
+      <!-- ═══ BOARD: 2x2 Grid ═══ -->
+      <div class="board-grid">
+
+        <!-- ISS Live Map -->
+        <section class="panel" id="panel-iss">
+          <div class="panel-hdr">
+            <div>
+              <div class="eyebrow">Live Tracking</div>
+              <h2 class="panel-title">ISS Position</h2>
+            </div>
+            <div class="meta" id="iss-meta">Acquiring signal</div>
+          </div>
+          <canvas id="iss-map-canvas" aria-label="ISS ground track map"></canvas>
+          <div class="data-strip">
+            <div class="data-cell"><span class="small">Latitude</span><strong id="iss-lat">--</strong></div>
+            <div class="data-cell"><span class="small">Longitude</span><strong id="iss-lon">--</strong></div>
+            <div class="data-cell"><span class="small">Altitude</span><strong id="iss-alt">--</strong></div>
+            <div class="data-cell"><span class="small">Velocity</span><strong id="iss-vel">--</strong></div>
+          </div>
+        </section>
+
+        <!-- Orbital Awareness Radar -->
+        <section class="panel" id="panel-radar">
+          <div class="panel-hdr">
+            <div>
+              <div class="eyebrow">Orbital Awareness</div>
+              <h2 class="panel-title">Activity Radar</h2>
+            </div>
+            <div class="meta" id="radar-meta">RANGE: 200 LD</div>
+          </div>
+          <canvas id="radar-canvas"></canvas>
+          <div class="panel-footer">
+            <span id="radar-sweep">SWEEP: 0°</span>
+            <span>SCALE: LOG</span>
+            <span id="radar-objects">OBJECTS: --</span>
+          </div>
+        </section>
+
+        <!-- Upcoming Launches -->
+        <section class="panel" id="panel-launches">
+          <div class="panel-hdr">
+            <div>
+              <div class="eyebrow">Launch Manifest</div>
+              <h2 class="panel-title">Upcoming Launches</h2>
+            </div>
+            <div class="meta countdown-display" id="countdown">--:--:--:--</div>
+          </div>
+          <div class="list" id="launch-list">
+            <div class="notice">Loading launch schedule…</div>
+          </div>
+        </section>
+
+        <!-- Crew in Orbit -->
+        <section class="panel" id="panel-crew">
+          <div class="panel-hdr">
+            <div>
+              <div class="eyebrow">Crew Manifest</div>
+              <h2 class="panel-title" id="crew-title">People in Orbit</h2>
+            </div>
+            <div class="meta" id="crew-count">Loading</div>
+          </div>
+          <div class="list" id="crew-list">
+            <div class="notice">Loading astronaut roster…</div>
+          </div>
+        </section>
+      </div>
+
+      <div class="section-tag"><span>Threat Assessment</span></div>
+
+      <!-- ═══ LOWER: Threat Score + NEO Watchlist ═══ -->
+      <div class="lower-grid">
+
+        <!-- Threat Score -->
+        <section class="panel" id="panel-threat">
+          <div class="panel-hdr">
+            <div>
+              <div class="eyebrow">Composite Risk</div>
+              <h2 class="panel-title">Planetary Threat Index</h2>
+            </div>
+            <div class="meta" id="threat-ts">Updating</div>
+          </div>
+          <div class="threat-card">
+            <div class="threat-score" id="threat-score">--</div>
+            <div class="threat-details">
+              <div class="threat-status" id="threat-status">Acquiring</div>
+              <p class="threat-desc" id="threat-desc">Fetching near-Earth object data…</p>
+            </div>
+          </div>
+          <div style="padding: 0 var(--pad) var(--pad);">
+            <div class="gauge"><div class="gauge-fill" id="gauge-fill"></div></div>
+            <div class="gauge-labels"><span>Low</span><span>Elevated</span><span>Critical</span></div>
+          </div>
+        </section>
+
+        <!-- NEO Watchlist -->
+        <section class="panel" id="panel-neo">
+          <div class="panel-hdr">
+            <div>
+              <div class="eyebrow">NEO Alert</div>
+              <h2 class="panel-title">Close Approaches · 7 Days</h2>
+            </div>
+            <div class="meta" id="neo-pha-count">Loading</div>
+          </div>
+          <div class="neo-head">
+            <div>Designation</div>
+            <div style="text-align:right">Date</div>
+            <div style="text-align:right">Miss Dist</div>
+            <div style="text-align:right">Size</div>
+          </div>
+          <div class="list" id="neo-rows">
+            <div class="notice">Loading near-Earth objects…</div>
+          </div>
+        </section>
+      </div>
+
+    </main>
+
+    <!-- ── Status Footer ── -->
+    <footer class="status-bar">
+      <span>ORBITAL WATCH · Live data from NASA, SpaceDevs, WhereTheISS</span>
+      <span>
+        <a href="https://api.nasa.gov" target="_blank" rel="noopener noreferrer">NASA API</a>
+         · 
+        <a href="https://thespacedevs.com" target="_blank" rel="noopener noreferrer">SpaceDevs</a>
+         · 
+        <a href="https://ssd.jpl.nasa.gov" target="_blank" rel="noopener noreferrer">JPL</a>
+      </span>
+    </footer>
+  </div>
+
+  <!-- Module load order matters: utils first, then app (core), then modules -->
+  <script src="./utils.js"></script>
+  <script src="./app.js"></script>
+  <script src="./orrery.js"></script>
+  <script src="./iss.js"></script>
+  <script src="./radar.js"></script>
+  <script src="./launches.js"></script>
+  <script src="./crew.js"></script>
+  <script src="./neo.js"></script>
+<script data-pplx-inline-edit>
+(function(){
+  if(window===window.top)return;
+  function inlineAll(orig,clone){
+    if(orig.nodeType!==1)return;
+    try{
+      var cs=getComputedStyle(orig);
+      var t='';
+      for(var i=0;i<cs.length;i++){t+=cs[i]+':'+cs.getPropertyValue(cs[i])+';';}
+      clone.style.cssText=t;
+    }catch(e){}
+    var oc=orig.children,cc=clone.children;
+    for(var j=0;j<oc.length&&j<cc.length;j++){inlineAll(oc[j],cc[j]);}
+  }
+  function stripExternal(clone){
+    var imgs=clone.querySelectorAll('img');
+    for(var i=0;i<imgs.length;i++){
+      var s=imgs[i].getAttribute('src');
+      if(s&&!s.startsWith('data:'))imgs[i].removeAttribute('src');
+    }
+    var all=clone.querySelectorAll('*');
+    for(var i=0;i<all.length;i++){
+      var st=all[i].style.cssText;
+      if(st&&st.indexOf('url(')>=0){
+        all[i].style.cssText=st.replace(/url\(["']?(?!data:)[^)"']*["']?\)/gi,'none');
+      }
+    }
+  }
+  window.addEventListener('message',function(e){
+    if(!e.data||e.data.type!=='INLINE_EDIT_CAPTURE_REQUEST')return;
+    var scrollX=window.scrollX||window.pageXOffset||0;
+    var scrollY=window.scrollY||window.pageYOffset||0;
+    var w=window.innerWidth,h=window.innerHeight;
+    try{
+      var clone=document.documentElement.cloneNode(true);
+      var rm=clone.querySelectorAll('script,link[rel="stylesheet"],style');
+      for(var i=0;i<rm.length;i++){rm[i].remove();}
+      inlineAll(document.documentElement,clone);
+      stripExternal(clone);
+      var html=new XMLSerializer().serializeToString(clone);
+      var svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'">'
+        +'<foreignObject width="100%" height="100%">'
+        +'<div xmlns="http://www.w3.org/1999/xhtml" style="width:'+w+'px;height:'+h+'px;overflow:hidden">'
+        +'<div style="transform:translate(-'+scrollX+'px,-'+scrollY+'px);transform-origin:top left">'
+        +html+'</div></div></foreignObject></svg>';
+      var svgUrl='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+      var img=new Image();
+      img.onload=function(){
+        var c=document.createElement('canvas');c.width=w;c.height=h;
+        c.getContext('2d').drawImage(img,0,0);
+        window.parent.postMessage({type:'INLINE_EDIT_SCREENSHOT_RESULT',dataUrl:c.toDataURL('image/png'),scrollX:scrollX,scrollY:scrollY},'*');
+      };
+      img.onerror=function(){
+        window.parent.postMessage({type:'INLINE_EDIT_SCREENSHOT_RESULT',dataUrl:null,scrollX:scrollX,scrollY:scrollY},'*');
+      };
+      img.src=svgUrl;
+    }catch(err){
+      window.parent.postMessage({type:'INLINE_EDIT_SCREENSHOT_RESULT',dataUrl:null,scrollX:scrollX,scrollY:scrollY},'*');
+    }
+  });
+})();
+</script></body>
+</html>
