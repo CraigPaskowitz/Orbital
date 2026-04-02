@@ -27,6 +27,7 @@
       const url = `https://api.nasa.gov/neo/rest/v1/feed?start_date=${dateISO(now)}&end_date=${dateISO(end)}&api_key=${NASA_API_KEY}`;
 
       const r = await fetch(url);
+      console.log('[NEO] fetch status:', r.status, r.statusText);
       if (!r.ok) throw new Error('HTTP ' + r.status);
       const data = await r.json();
 
@@ -130,7 +131,7 @@
       }
 
     } catch (e) {
-      console.error('NEO fetch error:', e);
+      console.error('[NEO] fetch error:', e.message, e);
       const statusEl = document.getElementById('threat-status');
       if (statusEl) statusEl.textContent = 'Data unavailable';
       const descEl = document.getElementById('threat-desc');
