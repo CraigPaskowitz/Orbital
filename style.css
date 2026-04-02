@@ -141,6 +141,11 @@ body::before {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+#eh-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
 .eh-badge {
   display: inline-block;
   padding: 1px 6px;
@@ -150,10 +155,10 @@ body::before {
   letter-spacing: 0.1em;
   flex-shrink: 0;
 }
-.eh-badge.launch { background: var(--amber-soft);  color: var(--amber-strong); }
-.eh-badge.pha    { background: rgba(255,60,60,0.15); color: #ff6050; }
-.eh-badge.neo    { background: rgba(120,255,160,0.1); color: #80ffaa; }
-.eh-badge.iss    { background: var(--cyan-dim);      color: var(--cyan); }
+.eh-badge.launch { background: var(--amber-soft);       color: var(--amber-strong); }
+.eh-badge.pha    { background: rgba(255,80,60,0.15);    color: #ff5040; }
+.eh-badge.neo    { background: rgba(128,255,170,0.10);  color: #80ffaa; }
+.eh-badge.iss    { background: var(--cyan-dim);         color: var(--cyan); }
 
 .hdr-brand {
   display: flex;
@@ -775,7 +780,7 @@ body::before {
 .launch-stale-notice {
   padding: 6px var(--pad);
   font-size: 11px;
-  color: var(--amber);
+  color: var(--amber-strong);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -925,6 +930,9 @@ body::before {
   body::before { display: none; }
 
   .status-bar { font-size: 9px; flex-wrap: wrap; gap: 4px; }
+
+  #event-horizon { height: 26px; font-size: 10px; gap: 7px; }
+  .eh-badge { font-size: 8px; padding: 1px 5px; }
 }
 
 /* ── Canvas Tooltip ── */
@@ -940,7 +948,7 @@ body::before {
   font-size: 11px;
   color: var(--text);
   line-height: 1.6;
-  max-width: 200px;
+  max-width: 220px;
   opacity: 0;
   transition: opacity 0.15s ease;
   backdrop-filter: blur(4px);
@@ -952,6 +960,7 @@ body::before {
   color: var(--cyan);
   font-size: 12px;
   margin-bottom: 2px;
+  white-space: nowrap;
 }
 #ow-tooltip div { color: var(--text-muted); }
 

@@ -33,7 +33,7 @@
         badge.className = 'eh-badge launch';
         badge.textContent = 'LAUNCH';
         text.textContent = 'T\u2212' + pad(h) + ':' + pad(m) + ':' + pad(s) +
-                           '\u2003' + launches.nextName;
+                           ' \u00b7 ' + launches.nextName;
         return;
       }
     }
@@ -47,7 +47,7 @@
     if (pha24) {
       badge.className = 'eh-badge pha';
       badge.textContent = 'PHA';
-      text.textContent = pha24.name + '\u2003' +
+      text.textContent = pha24.name + ' \u00b7 ' +
                          pha24.ld.toFixed(2) + ' LD \u2014 approach ' +
                          humanDateUTC(pha24.date);
       return;
@@ -60,7 +60,7 @@
     if (closeToday) {
       badge.className = 'eh-badge neo';
       badge.textContent = 'NEO';
-      text.textContent = closeToday.name + '\u2003' +
+      text.textContent = closeToday.name + ' \u00b7 ' +
                          closeToday.ld.toFixed(2) + ' LD flyby today';
       return;
     }
@@ -70,7 +70,7 @@
     badge.className = 'eh-badge iss';
     badge.textContent = 'ISS';
     text.textContent = (iss && iss.lat !== undefined)
-      ? getRegionLabel(iss.lat, iss.lon) + '\u2003' + iss.alt.toFixed(0) + ' km alt'
+      ? getRegionLabel(iss.lat, iss.lon) + ' \u00b7 ' + iss.alt.toFixed(0) + ' km alt'
       : 'Acquiring position\u2026';
   }
 
