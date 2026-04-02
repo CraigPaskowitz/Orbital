@@ -130,6 +130,11 @@
         OW.hooks.neoRefresh();
       }
 
+      // ── Redraw NEO approach timeline ──
+      if (OW.hooks.neoTimeline) {
+        OW.hooks.neoTimeline();
+      }
+
     } catch (e) {
       console.error('[NEO] fetch error:', e.message, e);
       const statusEl = document.getElementById('threat-status');
