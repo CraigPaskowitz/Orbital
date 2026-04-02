@@ -615,7 +615,7 @@ body::before {
   display: grid;
   grid-template-columns: 1.4fr 0.7fr 0.8fr 0.6fr;
   gap: 6px;
-  padding: 8px var(--pad);
+  padding: 6px var(--pad);
   border-bottom: 1px solid var(--border-soft);
   font-family: var(--mono);
   font-size: 10px;
@@ -626,17 +626,29 @@ body::before {
 
 /* ── NEO Approach Timeline ── */
 .neo-timeline-wrap {
-  height: 80px;
+  height: 120px;
   padding: 0 var(--pad);
-  margin-bottom: 4px;
+  margin-bottom: 0;
 }
 .neo-timeline-wrap canvas {
   display: block;
   width: 100%;
   height: 100%;
 }
+@media (max-width: 900px) {
+  .neo-timeline-wrap { height: 100px; }
+}
+@media (max-width: 600px) {
+  .neo-timeline-wrap { height: 72px; }
+}
 @media (max-width: 480px) {
-  .neo-timeline-wrap { height: 60px; }
+  .neo-timeline-wrap { height: 64px; }
+}
+
+/* NEO insight sits between timeline and table header */
+#neo-insight.panel-insight:not(:empty) {
+  padding: 4px var(--pad) 4px;
+  color: rgba(83, 247, 238, 0.32);
 }
 
 /* All header columns except the first (Designation) are right-aligned */
