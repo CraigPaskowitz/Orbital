@@ -8,6 +8,7 @@ const OW = {
   drawFns: [],   // functions called every animation frame: fn(timeSec, dt)
   initFns: [],   // functions called on init and resize: fn()
   dataReady: {}, // signals for cross-module data availability
+  hooks: {},     // named callbacks for cross-module coordination (e.g. neoRefresh)
 };
 
 // ── Shared data store — modules write here, others read ──
@@ -29,43 +30,48 @@ setInterval(updateClock, 1000);
 
 // ==========================================================================
 // Starfield Background
+// Pre-rendered to an in-memory canvas; composited each frame via drawImage.
+// This avoids N arc() calls per frame — stars are static between resizes.
 // ==========================================================================
 const starCanvas = document.getElementById('starfield');
 const starCtx = starCanvas.getContext('2d');
-let stars = [];
+
+// In-memory canvas that holds the pre-rendered star field
+const starBuffer = document.createElement('canvas');
+const starBufCtx = starBuffer.getContext('2d');
 
 function initStarfield() {
-  starCanvas.width = window.innerWidth;
-  starCanvas.height = window.innerHeight;
-  stars = [];
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+
+  // Size both canvases
+  starCanvas.width = w;
+  starCanvas.height = h;
+  starBuffer.width = w;
+  starBuffer.height = h;
+
   // Reduce star count on mobile for performance
-  const density = window.innerWidth < 600 ? 6000 : 3000;
-  const count = Math.floor((starCanvas.width * starCanvas.height) / density);
+  const density = w < 600 ? 6000 : 3000;
+  const count = Math.floor((w * h) / density);
+
+  // Clear and draw all stars once into the buffer
+  starBufCtx.clearRect(0, 0, w, h);
   for (let i = 0; i < count; i++) {
-    stars.push({
-      x: Math.random() * starCanvas.width,
-      y: Math.random() * starCanvas.height,
-      size: Math.random() * 1.4 + 0.3,
-      brightness: Math.random() * 0.5 + 0.2,
-      twinkleSpeed: Math.random() * 1.5 + 0.5,
-      twinklePhase: Math.random() * Math.PI * 2,
-    });
+    const x = Math.random() * w;
+    const y = Math.random() * h;
+    const size = Math.random() * 1.4 + 0.3;
+    const alpha = Math.random() * 0.5 + 0.2;
+    starBufCtx.fillStyle = 'rgba(180, 210, 240, ' + alpha + ')';
+    starBufCtx.beginPath();
+    starBufCtx.arc(x, y, size, 0, Math.PI * 2);
+    starBufCtx.fill();
   }
 }
 
-function drawStarfield(time) {
-  const ctx = starCtx;
-  const w = starCanvas.width;
-  const h = starCanvas.height;
-  ctx.clearRect(0, 0, w, h);
-  for (const s of stars) {
-    const twinkle = Math.sin(time * s.twinkleSpeed + s.twinklePhase) * 0.3 + 0.7;
-    const alpha = s.brightness * twinkle;
-    ctx.fillStyle = `rgba(180, 210, 240, ${alpha})`;
-    ctx.beginPath();
-    ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
-    ctx.fill();
-  }
+function drawStarfield() {
+  // Single compositing call — replaces the per-star arc loop
+  starCtx.clearRect(0, 0, starCanvas.width, starCanvas.height);
+  starCtx.drawImage(starBuffer, 0, 0);
 }
 
 // ==========================================================================
@@ -96,27 +102,49 @@ if (typeof screen !== 'undefined' && screen.orientation) {
 // Animation Loop
 // ==========================================================================
 let lastTime = performance.now();
+let rafId = null;
+let paused = false;
 
 function loop(now) {
   const dt = Math.min((now - lastTime) / 1000, 0.1); // cap dt to avoid spiral
   lastTime = now;
   const timeSec = now / 1000;
 
-  drawStarfield(timeSec);
+  drawStarfield();
 
   for (const fn of OW.drawFns) {
     try { fn(timeSec, dt); } catch (e) { console.warn('Draw fn error:', e); }
   }
 
-  requestAnimationFrame(loop);
+  rafId = requestAnimationFrame(loop);
 }
+
+// ==========================================================================
+// Page Visibility — pause RAF when tab is hidden, resume when visible
+// Resets lastTime on resume to prevent a large dt spike on the first frame back
+// ==========================================================================
+document.addEventListener('visibilitychange', function () {
+  if (document.hidden) {
+    paused = true;
+    if (rafId !== null) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+  } else {
+    if (paused) {
+      paused = false;
+      lastTime = performance.now(); // reset to avoid dt spike on resume
+      rafId = requestAnimationFrame(loop);
+    }
+  }
+});
 
 // ==========================================================================
 // Init
 // ==========================================================================
 function init() {
   resizeAll();
-  requestAnimationFrame(loop);
+  rafId = requestAnimationFrame(loop);
 }
 
 window.addEventListener('load', init);
