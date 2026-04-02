@@ -1,9 +1,12 @@
 // ==========================================================================
 // ORBITAL WATCH — Upcoming Launches Module
-// Ported from Mission Control — SpaceDevs Launch Library 2.2.0
+// Ported from Mission Control — SpaceDevs Launch Library 2.3.0
 // ==========================================================================
 
 (function () {
+  const CACHE_KEY = 'ow_launches_cache';
+  const CACHE_MAX_AGE_MS = 12 * 60 * 60 * 1000; // 12 hours
+
   let countdownTarget = null;
 
   function runCountdown() {
@@ -23,42 +26,45 @@
 
   setInterval(runCountdown, 1000);
 
-  async function fetchLaunches() {
-    const list = document.getElementById('launch-list');
-    countdownTarget = null; // reset so a failed refresh doesn't show stale countdown
+  function saveCache(results) {
     try {
-      const r = await fetch('https://ll.thespacedevs.com/2.3.0/launches/upcoming/?format=json&limit=4&include_suborbital=false');
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      const data = await r.json();
-      const results = Array.isArray(data.results) ? data.results : [];
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ fetchedAt: Date.now(), results: results }));
+    } catch (e) {
+      // localStorage unavailable (private browsing quota, etc.) — fail silently
+    }
+  }
 
-      if (!results.length) throw new Error('No launches');
+  function loadCache() {
+    try {
+      const raw = localStorage.getItem(CACHE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (!parsed || !Array.isArray(parsed.results) || !parsed.fetchedAt) return null;
+      if (Date.now() - parsed.fetchedAt > CACHE_MAX_AGE_MS) return null;
+      return parsed;
+    } catch (e) {
+      return null;
+    }
+  }
 
-      const primary = results[0];
-      countdownTarget = new Date(primary.net);
-      runCountdown();
+  function renderResults(results, list) {
+    countdownTarget = new Date(results[0].net);
+    runCountdown();
 
-      // Last updated indicator
-      const lUpd = document.getElementById('launches-updated');
-      if (lUpd) {
-        const lNow = new Date();
-        lUpd.textContent = 'Updated ' + pad(lNow.getUTCHours()) + ':' + pad(lNow.getUTCMinutes()) + ' UTC';
-      }
+    list.innerHTML = results.map(l => {
+      const d = new Date(l.net);
+      const st = l.status?.abbrev || 'TBD';
+      const go = /go/i.test(st);
+      const vehicle = l.rocket?.configuration?.name || 'TBD';
+      const padName = l.pad?.name || 'TBD';
+      const orbit = l.mission?.orbit?.abbrev || 'TBD';
 
-      list.innerHTML = results.map(l => {
-        const d = new Date(l.net);
-        const st = l.status?.abbrev || 'TBD';
-        const go = /go/i.test(st);
-        const vehicle = l.rocket?.configuration?.name || 'TBD';
-        const padName = l.pad?.name || 'TBD';
-        const orbit = l.mission?.orbit?.abbrev || 'TBD';
+      const detailUrl = l.slug
+        ? `https://spacelaunchnow.me/launch/${encodeURIComponent(l.slug)}`
+        : null;
+      const agencyUrl = providerUrl(l.launch_service_provider);
 
-        const detailUrl = l.slug
-          ? `https://spacelaunchnow.me/launch/${encodeURIComponent(l.slug)}`
-          : null;
-        const agencyUrl = providerUrl(l.launch_service_provider);
-
-        return `<div class="launch-row">
+      return `<div class="launch-row">
           <div class="launch-date">
             <div class="mo">${monthAbbr(d.getUTCMonth())}</div>
             <div class="dy">${pad(d.getUTCDate())}</div>
@@ -79,10 +85,52 @@
             </div>
           </div>
         </div>`;
-      }).join('');
+    }).join('');
+  }
+
+  async function fetchLaunches() {
+    const list = document.getElementById('launch-list');
+    countdownTarget = null; // reset so a failed refresh doesn't show stale countdown
+    try {
+      const r = await fetch('https://ll.thespacedevs.com/2.3.0/launches/upcoming/?format=json&limit=4&include_suborbital=false');
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const data = await r.json();
+      const results = Array.isArray(data.results) ? data.results : [];
+
+      if (!results.length) throw new Error('No launches');
+
+      // Successful fetch — save to cache and render
+      saveCache(results);
+      renderResults(results, list);
+
+      // Last updated indicator
+      const lUpd = document.getElementById('launches-updated');
+      if (lUpd) {
+        const lNow = new Date();
+        lUpd.textContent = 'Updated ' + pad(lNow.getUTCHours()) + ':' + pad(lNow.getUTCMinutes()) + ' UTC';
+      }
+
     } catch (e) {
       console.error('[Launches] fetch error:', e.message, e);
-      list.innerHTML = '<div class="notice">Launch data temporarily unavailable.</div>';
+
+      const cached = loadCache();
+      if (cached) {
+        // Render stale data with a throttle notice above the rows
+        renderResults(cached.results, list);
+        const staleBanner = document.createElement('div');
+        staleBanner.className = 'launch-stale-notice';
+        staleBanner.textContent = 'Live data throttled — showing cached data';
+        list.insertBefore(staleBanner, list.firstChild);
+
+        // Update timestamp to reflect cache age
+        const lUpd = document.getElementById('launches-updated');
+        if (lUpd) {
+          const cachedAt = new Date(cached.fetchedAt);
+          lUpd.textContent = 'Cached ' + pad(cachedAt.getUTCHours()) + ':' + pad(cachedAt.getUTCMinutes()) + ' UTC';
+        }
+      } else {
+        list.innerHTML = '<div class="notice">Launch data temporarily throttled — check back shortly.</div>';
+      }
     }
   }
 

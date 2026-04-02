@@ -724,6 +724,13 @@ body::before {
   font-size: 13px;
   color: var(--text-muted);
 }
+.launch-stale-notice {
+  padding: 6px var(--pad);
+  font-size: 11px;
+  color: var(--amber);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
 
 .section-tag {
   display: flex;
