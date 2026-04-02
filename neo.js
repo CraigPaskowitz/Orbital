@@ -120,8 +120,8 @@
       }
 
       // ── Regenerate orrery trajectories with fresh NEO data ──
-      if (typeof window.regenerateOrreryTrajectories === 'function') {
-        window.regenerateOrreryTrajectories();
+      if (OW.hooks.neoRefresh) {
+        OW.hooks.neoRefresh();
       }
 
     } catch (e) {
