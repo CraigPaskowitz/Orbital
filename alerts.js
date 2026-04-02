@@ -74,17 +74,10 @@
       : 'Acquiring position\u2026';
   }
 
-  // Delay first evaluation to allow data modules to load
+  // Delay first evaluation to allow data modules to load,
+  // then run on a single stable interval
   setTimeout(function () {
     evaluate();
-    setInterval(evaluate, 30000);
+    setInterval(evaluate, 10000);
   }, 2000);
-
-  // Re-evaluate every second while a launch is imminent (for live countdown)
-  setInterval(function () {
-    const launches = owData.launches;
-    if (!launches || !launches.nextNet) return;
-    const delta = new Date(launches.nextNet).getTime() - Date.now();
-    if (delta > 0 && delta <= 6 * 3600000) { evaluate(); }
-  }, 1000);
 }());
