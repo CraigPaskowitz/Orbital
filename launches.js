@@ -81,6 +81,7 @@
         </div>`;
       }).join('');
     } catch (e) {
+      console.error('[Launches] fetch error:', e.message, e);
       list.innerHTML = '<div class="notice">Launch data temporarily unavailable.</div>';
     }
   }
