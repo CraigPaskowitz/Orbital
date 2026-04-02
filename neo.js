@@ -62,6 +62,17 @@
       const phaCt = all.filter(n => n.hazardous).length;
       const closest = all[0];
 
+      // ── NEO panel insight line ──
+      const neoInsightEl = document.getElementById('neo-insight');
+      if (neoInsightEl) {
+        const withinLD = all.filter(function (n) { return n.ld < 1; }).length;
+        if (withinLD > 0) {
+          neoInsightEl.textContent = withinLD + ' object' + (withinLD > 1 ? 's' : '') + ' within lunar distance this week';
+        } else if (closest) {
+          neoInsightEl.textContent = 'Closest approach this week: ' + closest.ld.toFixed(2) + ' LD';
+        }
+      }
+
       // ── Update shared data store ──
       owData.neo = {
         objects: all,

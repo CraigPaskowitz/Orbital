@@ -107,6 +107,27 @@
       };
       renderResults(results, list);
 
+      // ── Launches panel insight line ──
+      const insightEl = document.getElementById('launches-insight');
+      if (insightEl && results[0] && results[0].net) {
+        const delta = new Date(results[0].net).getTime() - Date.now();
+        let insightText;
+        if (delta <= 0) {
+          insightText = 'Launch window now open';
+        } else {
+          const totalH = Math.floor(delta / 3600000);
+          if (totalH < 1) {
+            insightText = 'Next launch in less than an hour';
+          } else if (totalH < 24) {
+            insightText = 'Next launch in ' + totalH + ' hour' + (totalH > 1 ? 's' : '');
+          } else {
+            const days = Math.floor(totalH / 24);
+            insightText = 'Next launch in ' + days + ' day' + (days > 1 ? 's' : '');
+          }
+        }
+        insightEl.textContent = insightText;
+      }
+
       // Last updated indicator
       const lUpd = document.getElementById('launches-updated');
       if (lUpd) {

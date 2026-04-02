@@ -301,6 +301,16 @@ body::before {
   flex-shrink: 0;
 }
 
+.panel-insight {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-faint);
+  letter-spacing: 0.06em;
+}
+.panel-insight:not(:empty) {
+  padding: 0 var(--pad) 8px;
+}
+
 .eyebrow {
   font-family: var(--mono);
   font-size: 10px;
