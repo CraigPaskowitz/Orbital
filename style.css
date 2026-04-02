@@ -122,6 +122,39 @@ body::before {
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
 }
 
+/* ── Event Horizon Bar ── */
+#event-horizon {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 var(--pad);
+  height: 30px;
+  margin-bottom: 14px;
+  background: rgba(3, 8, 12, 0.7);
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.eh-badge {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  flex-shrink: 0;
+}
+.eh-badge.launch { background: var(--amber-soft);  color: var(--amber-strong); }
+.eh-badge.pha    { background: rgba(255,60,60,0.15); color: #ff6050; }
+.eh-badge.neo    { background: rgba(120,255,160,0.1); color: #80ffaa; }
+.eh-badge.iss    { background: var(--cyan-dim);      color: var(--cyan); }
+
 .hdr-brand {
   display: flex;
   align-items: center;

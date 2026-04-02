@@ -99,8 +99,12 @@
 
       if (!results.length) throw new Error('No launches');
 
-      // Successful fetch — save to cache and render
+      // Successful fetch — save to cache, expose to owData, and render
       saveCache(results);
+      owData.launches = {
+        nextName: results[0].name || null,
+        nextNet:  results[0].net  || null,
+      };
       renderResults(results, list);
 
       // Last updated indicator
