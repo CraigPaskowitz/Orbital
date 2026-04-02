@@ -21,6 +21,7 @@
   let neoTrajectories = [];
   let orreryTime = 0;
   let planetAngles = [];
+  let orreryHits = []; // rebuilt each frame: [{x, y, r, html}]
 
   // ── Init ──
   function initOrrery() {
@@ -111,6 +112,7 @@
     const scale = (Math.min(w, h / TILT) / 2) * SCALE_FACTOR / MAX_AU;
 
     orreryTime += dt;
+    orreryHits = [];
 
     // Orbit paths
     for (const p of PLANETS) {
@@ -192,6 +194,14 @@
 
       ctx.fillStyle = p.labelColor;
       ctx.fillText(p.name, pos.x, pos.y + p.size + 13);
+
+      const au = p.au * (1 - p.ecc * p.ecc) / (1 + p.ecc * Math.cos(angle));
+      orreryHits.push({
+        x: pos.x, y: pos.y, r: 16,
+        html: '<strong>' + p.name + '</strong>' +
+              '<div>' + au.toFixed(3) + ' AU from Sun</div>' +
+              '<div>Period ' + p.period.toFixed(2) + ' yr</div>',
+      });
     }
   }
 
@@ -250,6 +260,19 @@
         ctx.arc(hp.x, hp.y, sz, 0, Math.PI * 2);
         ctx.fill();
 
+        const neoObj = (owData.neo && owData.neo.objects)
+          ? owData.neo.objects.find(function (o) { return o.name === traj.name; })
+          : null;
+        const neoLd   = neoObj ? neoObj.ld.toFixed(2) + ' LD' : null;
+        const neoDate = neoObj ? humanDateUTC(neoObj.date) : null;
+        orreryHits.push({
+          x: hp.x, y: hp.y, r: 12,
+          html: '<strong>' + esc(traj.name) + '</strong>' +
+                '<div>' + (traj.isHazardous ? '⚠ Potentially hazardous' : 'Nominal') + '</div>' +
+                (neoLd   ? '<div>Miss dist ' + neoLd + '</div>'       : '') +
+                (neoDate ? '<div>Approach ' + neoDate + '</div>' : ''),
+        });
+
         if (traj.isHazardous || hp.dist < traj.perihelion * 1.5) {
           ctx.fillStyle = hexToRgba(traj.headColor, 0.8);
           ctx.font = "7px 'Share Tech Mono'";
@@ -260,6 +283,33 @@
       }
     }
   }
+
+  // ── Hit testing — click/tap on planets and NEO heads ──
+  canvas.addEventListener('click', function (e) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width  / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const cx = (e.clientX - rect.left) * scaleX;
+    const cy = (e.clientY - rect.top)  * scaleY;
+
+    let best = null;
+    let bestDist = Infinity;
+    for (const hit of orreryHits) {
+      const dx = cx - hit.x;
+      const dy = cy - hit.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist <= hit.r && dist < bestDist) {
+        best = hit;
+        bestDist = dist;
+      }
+    }
+
+    if (best) {
+      OW.tooltip.show(e.clientX, e.clientY, best.html);
+    } else {
+      OW.tooltip.hide();
+    }
+  });
 
   // Register refresh hook — neo.js calls OW.hooks.neoRefresh() after each fetch
   OW.hooks.neoRefresh = generateTrajectories;

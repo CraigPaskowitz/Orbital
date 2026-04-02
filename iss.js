@@ -52,6 +52,7 @@
   // ── State for first-load and ascending/descending detection ──
   let issReady = false;  // true after first successful fetch
   let prevLat  = null;   // previous latitude for direction detection
+  let issHits  = [];     // rebuilt each drawMap: [{x, y, r, html}]
 
   // ── Compute approximate ISS ground track ──
   // Returns an array of {x, y} canvas pixel coordinates.
@@ -165,6 +166,7 @@
     const h = canvas.height;
     const isMobile = w < 500;
     ctx.clearRect(0, 0, w, h);
+    issHits = [];
 
     // ── Layer 1: Earth base ──
     if (earthLoaded && earthImg) {
@@ -263,6 +265,16 @@
       ctx.font = "9px 'Share Tech Mono'";
       ctx.textAlign = 'left';
       ctx.fillText('ISS', px + 10, py + 3);
+
+      const iss = owData.iss;
+      issHits = [{
+        x: px, y: py, r: 20,
+        html: '<strong>ISS</strong>' +
+              '<div>' + iss.lat.toFixed(2) + '° ' + (iss.lat >= 0 ? 'N' : 'S') +
+              ' / ' + iss.lon.toFixed(2) + '° ' + (iss.lon >= 0 ? 'E' : 'W') + '</div>' +
+              '<div>Alt ' + iss.alt.toFixed(1) + ' km</div>' +
+              '<div>Vel ' + iss.vel.toFixed(2) + ' km/s</div>',
+      }];
     }
   }
 
@@ -304,6 +316,28 @@
       document.getElementById('iss-meta').textContent = 'Signal unavailable';
     }
   }
+
+  // ── Hit testing — click/tap on ISS dot ──
+  canvas.addEventListener('click', function (e) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width  / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const cx = (e.clientX - rect.left) * scaleX;
+    const cy = (e.clientY - rect.top)  * scaleY;
+
+    let hit = null;
+    for (const h of issHits) {
+      const dx = cx - h.x;
+      const dy = cy - h.y;
+      if (Math.sqrt(dx * dx + dy * dy) <= h.r) { hit = h; break; }
+    }
+
+    if (hit) {
+      OW.tooltip.show(e.clientX, e.clientY, hit.html);
+    } else {
+      OW.tooltip.hide();
+    }
+  });
 
   // Register
   OW.initFns.push(initISS);

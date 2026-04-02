@@ -879,6 +879,34 @@ body::before {
   .status-bar { font-size: 9px; flex-wrap: wrap; gap: 4px; }
 }
 
+/* ── Canvas Tooltip ── */
+#ow-tooltip {
+  position: fixed;
+  z-index: 900;
+  pointer-events: none;
+  background: rgba(6, 14, 22, 0.92);
+  border: 1px solid var(--border-soft);
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text);
+  line-height: 1.6;
+  max-width: 200px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+#ow-tooltip.visible { opacity: 1; }
+#ow-tooltip strong {
+  display: block;
+  color: var(--cyan);
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+#ow-tooltip div { color: var(--text-muted); }
+
 /* ── Reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

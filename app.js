@@ -18,6 +18,59 @@ window.owData = {
 };
 
 // ==========================================================================
+// Shared Tooltip
+// Modules call OW.tooltip.show(x, y, html) / OW.tooltip.hide().
+// x/y are page coordinates; clamping keeps the box inside the viewport.
+// Any click outside a canvas (or on empty canvas space) dismisses it.
+// ==========================================================================
+OW.tooltip = (function () {
+  const el = document.getElementById('ow-tooltip');
+  let dismissTimer = null;
+
+  function hide() {
+    clearTimeout(dismissTimer);
+    dismissTimer = null;
+    el.classList.remove('visible');
+    el.setAttribute('aria-hidden', 'true');
+  }
+
+  function show(clientX, clientY, html) {
+    clearTimeout(dismissTimer);
+    el.innerHTML = html;
+    el.setAttribute('aria-hidden', 'false');
+
+    // Temporarily make visible to measure size
+    el.style.left = '0px';
+    el.style.top  = '0px';
+    el.classList.add('visible');
+
+    const tw = el.offsetWidth;
+    const th = el.offsetHeight;
+    const margin = 10;
+
+    const cx = Math.min(clientX + 14, window.innerWidth  - tw - margin);
+    const cy = Math.min(clientY - th / 2, window.innerHeight - th - margin);
+
+    el.style.left = Math.max(margin, cx) + 'px';
+    el.style.top  = Math.max(margin, cy) + 'px';
+
+    // Auto-dismiss after 4 s
+    dismissTimer = setTimeout(hide, 4000);
+  }
+
+  // Dismiss on any click that is NOT on a tracked canvas
+  document.addEventListener('click', function (e) {
+    if (el.classList.contains('visible') &&
+        !e.target.closest('#orrery-canvas') &&
+        !e.target.closest('#iss-map-canvas')) {
+      hide();
+    }
+  });
+
+  return { show: show, hide: hide };
+}());
+
+// ==========================================================================
 // Clock
 // ==========================================================================
 function updateClock() {
