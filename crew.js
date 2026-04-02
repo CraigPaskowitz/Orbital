@@ -135,9 +135,9 @@
       countEl.textContent = `${crew.length} active`;
 
       // Last updated indicator
-      var cUpd = document.getElementById('crew-updated');
+      const cUpd = document.getElementById('crew-updated');
       if (cUpd) {
-        var cNow = new Date();
+        const cNow = new Date();
         cUpd.textContent = 'Updated ' + pad(cNow.getUTCHours()) + ':' + pad(cNow.getUTCMinutes()) + ' UTC';
       }
 

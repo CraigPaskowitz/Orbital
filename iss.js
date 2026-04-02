@@ -270,6 +270,7 @@
   async function fetchISS() {
     try {
       const r = await fetch('https://api.wheretheiss.at/v1/satellites/25544');
+      if (!r.ok) throw new Error('HTTP ' + r.status);
       const d = await r.json();
 
       const lat = parseFloat(d.latitude || 0);

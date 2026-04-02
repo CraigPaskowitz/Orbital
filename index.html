@@ -69,8 +69,10 @@
               <div class="eyebrow">Live Tracking</div>
               <h2 class="panel-title">ISS Position</h2>
             </div>
-            <div class="meta" id="iss-meta">Acquiring signal</div>
-            <div class="last-updated" id="iss-updated"></div>
+            <div class="panel-hdr-right">
+              <div class="meta" id="iss-meta">Acquiring signal</div>
+              <div class="last-updated" id="iss-updated"></div>
+            </div>
           </div>
           <canvas id="iss-map-canvas" aria-label="ISS ground track map"></canvas>
           <div class="data-strip">
@@ -105,8 +107,10 @@
               <div class="eyebrow">Launch Manifest</div>
               <h2 class="panel-title">Upcoming Launches</h2>
             </div>
-            <div class="meta countdown-display" id="countdown">--:--:--:--</div>
-            <div class="last-updated" id="launches-updated"></div>
+            <div class="panel-hdr-right">
+              <div class="meta countdown-display" id="countdown">--:--:--:--</div>
+              <div class="last-updated" id="launches-updated"></div>
+            </div>
           </div>
           <div class="list" id="launch-list">
             <div class="notice">Loading launch schedule…</div>
@@ -120,8 +124,10 @@
               <div class="eyebrow">Crew Manifest</div>
               <h2 class="panel-title" id="crew-title">People in Orbit</h2>
             </div>
-            <div class="meta" id="crew-count">Loading</div>
-            <div class="last-updated" id="crew-updated"></div>
+            <div class="panel-hdr-right">
+              <div class="meta" id="crew-count">Loading</div>
+              <div class="last-updated" id="crew-updated"></div>
+            </div>
           </div>
           <div class="list" id="crew-list">
             <div class="notice">Loading astronaut roster…</div>
@@ -163,14 +169,16 @@
               <div class="eyebrow">NEO Alert</div>
               <h2 class="panel-title">Close Approaches · 7 Days</h2>
             </div>
-            <div class="meta" id="neo-pha-count">Loading</div>
-            <div class="last-updated" id="neo-updated"></div>
+            <div class="panel-hdr-right">
+              <div class="meta" id="neo-pha-count">Loading</div>
+              <div class="last-updated" id="neo-updated"></div>
+            </div>
           </div>
           <div class="neo-head">
             <div>Designation</div>
-            <div style="text-align:right">Date</div>
-            <div style="text-align:right">Miss Dist</div>
-            <div style="text-align:right">Size</div>
+            <div>Date</div>
+            <div>Miss Dist</div>
+            <div>Size</div>
           </div>
           <div class="list" id="neo-rows">
             <div class="notice">Loading near-Earth objects…</div>

@@ -254,6 +254,15 @@ body::before {
   background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0));
 }
 
+/* Right-side group: meta value + last-updated timestamp, stacked and right-aligned */
+.panel-hdr-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
 .eyebrow {
   font-family: var(--mono);
   font-size: 10px;
@@ -565,6 +574,11 @@ body::before {
   color: var(--text-soft);
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+/* All header columns except the first (Designation) are right-aligned */
+.neo-head > div + div {
+  text-align: right;
 }
 
 .neo-row {

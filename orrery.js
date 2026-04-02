@@ -160,7 +160,10 @@
       drawTrajectory(ctx, traj, cx, cy, scale);
     }
 
-    // Planets
+    // Planets — set shared label font once here; drawTrajectory may have changed it
+    ctx.font = "bold 9px 'Share Tech Mono'";
+    ctx.textAlign = 'center';
+
     for (let i = 0; i < PLANETS.length; i++) {
       const p = PLANETS[i];
       planetAngles[i] += dt * (0.15 / p.period);
@@ -188,8 +191,6 @@
       ctx.fill();
 
       ctx.fillStyle = p.labelColor;
-      ctx.font = "bold 9px 'Share Tech Mono'";
-      ctx.textAlign = 'center';
       ctx.fillText(p.name, pos.x, pos.y + p.size + 13);
     }
   }

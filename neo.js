@@ -85,15 +85,14 @@
       if (descEl) {
         descEl.textContent = `${all.length} near-Earth objects in the 7-day window, ${phaCt} flagged as potentially hazardous. No confirmed impact events.`;
       }
-      if (tsEl) {
-        tsEl.innerHTML = `Updated<br>${pad(new Date().getUTCHours())}:${pad(new Date().getUTCMinutes())} UTC`;
-      }
+      // Shared timestamp string — used by both threat-ts and neo-updated
+      const now = new Date();
+      const nowStr = 'Updated ' + pad(now.getUTCHours()) + ':' + pad(now.getUTCMinutes()) + ' UTC';
 
-      // Last updated indicator in panel header
-      var neoUpd = document.getElementById('neo-updated');
-      if (neoUpd) {
-        neoUpd.textContent = 'Updated ' + pad(new Date().getUTCHours()) + ':' + pad(new Date().getUTCMinutes()) + ' UTC';
-      }
+      if (tsEl) tsEl.textContent = nowStr;
+
+      const neoUpd = document.getElementById('neo-updated');
+      if (neoUpd) neoUpd.textContent = nowStr;
       if (gaugeEl) gaugeEl.style.width = `${score}%`;
 
       // ── NEO compact watchlist ──

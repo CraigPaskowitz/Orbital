@@ -25,6 +25,7 @@
 
   async function fetchLaunches() {
     const list = document.getElementById('launch-list');
+    countdownTarget = null; // reset so a failed refresh doesn't show stale countdown
     try {
       const r = await fetch('https://ll.thespacedevs.com/2.2.0/launch/upcoming/?format=json&limit=4&include_suborbital=false');
       const data = await r.json();
@@ -37,9 +38,9 @@
       runCountdown();
 
       // Last updated indicator
-      var lUpd = document.getElementById('launches-updated');
+      const lUpd = document.getElementById('launches-updated');
       if (lUpd) {
-        var lNow = new Date();
+        const lNow = new Date();
         lUpd.textContent = 'Updated ' + pad(lNow.getUTCHours()) + ':' + pad(lNow.getUTCMinutes()) + ' UTC';
       }
 
