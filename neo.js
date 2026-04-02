@@ -44,6 +44,24 @@
           const size = (sizeMin + sizeMax) / 2;
           const velKms = parseFloat(ca.relative_velocity?.kilometers_per_second || 0);
 
+          // Normalise approach time to a numeric ms timestamp here so
+          // consumers never need to re-parse potentially non-ISO strings.
+          // close_approach_date_full is "2025 Apr 03 14:21" — not ISO,
+          // fails on Safari. close_approach_date is "2025-04-03" (ISO, safe).
+          const fullStr = ca.close_approach_date_full || '';
+          const isoStr  = ca.close_approach_date || day; // "YYYY-MM-DD"
+          // Convert "2025 Apr 03 14:21" → "2025-04-03T14:21:00Z" if possible
+          const fullMs = (function () {
+            const m = fullStr.match(/^(\d{4})\s+(\w{3})\s+(\d{2})\s+(\d{2}):(\d{2})$/);
+            if (!m) return NaN;
+            const months = { Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,
+                             Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11 };
+            const mo = months[m[2]];
+            if (mo === undefined) return NaN;
+            return Date.UTC(+m[1], mo, +m[3], +m[4], +m[5]);
+          }());
+          const approachMs = isFinite(fullMs) ? fullMs : new Date(isoStr).getTime();
+
           all.push({
             name: (n.name || '').replace(/[()]/g, '').trim(),
             date: day,
@@ -54,6 +72,7 @@
             hazardous: !!n.is_potentially_hazardous_asteroid,
             nasaUrl: n.nasa_jpl_url || null,
             approachTime: ca.close_approach_date_full || ca.close_approach_date || day,
+            approachMs: approachMs,
           });
         });
       });

@@ -99,8 +99,8 @@
     const visible = objects.slice(0, 20);
 
     for (const neo of visible) {
-      const approachMs = new Date(neo.approachTime || neo.date).getTime();
-      if (approachMs < now || approachMs > windowEnd) continue;
+      const approachMs = neo.approachMs;
+      if (!isFinite(approachMs) || approachMs < now || approachMs > windowEnd) continue;
 
       const x = padL + ((approachMs - now) / (7 * DAY_MS)) * plotW;
       const y = ldToY(neo.ld, padT, plotH);
