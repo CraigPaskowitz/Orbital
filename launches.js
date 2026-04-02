@@ -36,6 +36,13 @@
       countdownTarget = new Date(primary.net);
       runCountdown();
 
+      // Last updated indicator
+      var lUpd = document.getElementById('launches-updated');
+      if (lUpd) {
+        var lNow = new Date();
+        lUpd.textContent = 'Updated ' + pad(lNow.getUTCHours()) + ':' + pad(lNow.getUTCMinutes()) + ' UTC';
+      }
+
       list.innerHTML = results.map(l => {
         const d = new Date(l.net);
         const st = l.status?.abbrev || 'TBD';

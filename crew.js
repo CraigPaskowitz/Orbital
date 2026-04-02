@@ -134,6 +134,13 @@
       titleEl.textContent = 'Crew in Orbit';
       countEl.textContent = `${crew.length} active`;
 
+      // Last updated indicator
+      var cUpd = document.getElementById('crew-updated');
+      if (cUpd) {
+        var cNow = new Date();
+        cUpd.textContent = 'Updated ' + pad(cNow.getUTCHours()) + ':' + pad(cNow.getUTCMinutes()) + ' UTC';
+      }
+
       // Build crew rows
       list.innerHTML = crew.slice(0, 8).map(p => {
         const flag = countryFlag(p.countryCode || '');

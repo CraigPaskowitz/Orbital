@@ -70,6 +70,7 @@
               <h2 class="panel-title">ISS Position</h2>
             </div>
             <div class="meta" id="iss-meta">Acquiring signal</div>
+            <div class="last-updated" id="iss-updated"></div>
           </div>
           <canvas id="iss-map-canvas" aria-label="ISS ground track map"></canvas>
           <div class="data-strip">
@@ -105,6 +106,7 @@
               <h2 class="panel-title">Upcoming Launches</h2>
             </div>
             <div class="meta countdown-display" id="countdown">--:--:--:--</div>
+            <div class="last-updated" id="launches-updated"></div>
           </div>
           <div class="list" id="launch-list">
             <div class="notice">Loading launch schedule…</div>
@@ -119,6 +121,7 @@
               <h2 class="panel-title" id="crew-title">People in Orbit</h2>
             </div>
             <div class="meta" id="crew-count">Loading</div>
+            <div class="last-updated" id="crew-updated"></div>
           </div>
           <div class="list" id="crew-list">
             <div class="notice">Loading astronaut roster…</div>
@@ -147,7 +150,7 @@
               <p class="threat-desc" id="threat-desc">Fetching near-Earth object data…</p>
             </div>
           </div>
-          <div style="padding: 0 var(--pad) var(--pad);">
+          <div class="threat-gauge-wrap">
             <div class="gauge"><div class="gauge-fill" id="gauge-fill"></div></div>
             <div class="gauge-labels"><span>Low</span><span>Elevated</span><span>Critical</span></div>
           </div>
@@ -161,6 +164,7 @@
               <h2 class="panel-title">Close Approaches · 7 Days</h2>
             </div>
             <div class="meta" id="neo-pha-count">Loading</div>
+            <div class="last-updated" id="neo-updated"></div>
           </div>
           <div class="neo-head">
             <div>Designation</div>

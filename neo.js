@@ -88,6 +88,12 @@
       if (tsEl) {
         tsEl.innerHTML = `Updated<br>${pad(new Date().getUTCHours())}:${pad(new Date().getUTCMinutes())} UTC`;
       }
+
+      // Last updated indicator in panel header
+      var neoUpd = document.getElementById('neo-updated');
+      if (neoUpd) {
+        neoUpd.textContent = 'Updated ' + pad(new Date().getUTCHours()) + ':' + pad(new Date().getUTCMinutes()) + ' UTC';
+      }
       if (gaugeEl) gaugeEl.style.width = `${score}%`;
 
       // ── NEO compact watchlist ──

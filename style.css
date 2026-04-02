@@ -279,6 +279,17 @@ body::before {
   text-transform: uppercase;
 }
 
+/* Shown after first successful fetch for each data panel */
+.last-updated {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text-faint);
+  text-align: right;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
 .panel-body {
   padding: var(--pad);
 }
@@ -632,6 +643,10 @@ body::before {
   color: var(--text-muted);
   line-height: 1.35;
   margin-top: 4px;
+}
+
+.threat-gauge-wrap {
+  padding: 0 var(--pad) var(--pad);
 }
 
 .gauge {
