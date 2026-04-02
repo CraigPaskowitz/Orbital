@@ -27,7 +27,7 @@
     const list = document.getElementById('launch-list');
     countdownTarget = null; // reset so a failed refresh doesn't show stale countdown
     try {
-      const r = await fetch('https://ll.thespacedevs.com/2.3.0/launch/upcoming/?format=json&limit=4&include_suborbital=false');
+      const r = await fetch('https://ll.thespacedevs.com/2.3.0/launches/upcoming/?format=json&limit=4&include_suborbital=false');
       if (!r.ok) throw new Error('HTTP ' + r.status);
       const data = await r.json();
       const results = Array.isArray(data.results) ? data.results : [];

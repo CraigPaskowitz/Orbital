@@ -87,8 +87,8 @@
         descEl.textContent = `${all.length} near-Earth objects in the 7-day window, ${phaCt} flagged as potentially hazardous. No confirmed impact events.`;
       }
       // Shared timestamp string — used by both threat-ts and neo-updated
-      const now = new Date();
-      const nowStr = 'Updated ' + pad(now.getUTCHours()) + ':' + pad(now.getUTCMinutes()) + ' UTC';
+      const tsNow = new Date();
+      const nowStr = 'Updated ' + pad(tsNow.getUTCHours()) + ':' + pad(tsNow.getUTCMinutes()) + ' UTC';
 
       if (tsEl) tsEl.textContent = nowStr;
 
