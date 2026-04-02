@@ -42,16 +42,16 @@
 
   // ── ISS orbital constants (public, fixed values) ──
   // Inclination 51.6°, period 92.68 min, Earth sidereal day 1436 min
-  var ISS_INC_RAD = 51.6 * Math.PI / 180;  // inclination in radians
-  var ISS_SIN_INC = Math.sin(ISS_INC_RAD); // sin(51.6°) ≈ 0.7826
-  var ISS_T_MIN   = 92.68;                 // orbital period, minutes
+  const ISS_INC_RAD = 51.6 * Math.PI / 180;  // inclination in radians
+  const ISS_SIN_INC = Math.sin(ISS_INC_RAD); // sin(51.6°) ≈ 0.7826
+  const ISS_T_MIN   = 92.68;                 // orbital period, minutes
   // Net eastward longitude drift of ground track per minute:
   // ISS angular velocity minus Earth's rotation rate
-  var ISS_LON_RATE = (360 / ISS_T_MIN) - (360 / 1436); // ≈ +3.636 °/min eastward
+  const ISS_LON_RATE = (360 / ISS_T_MIN) - (360 / 1436); // ≈ +3.636 °/min eastward
 
   // ── State for first-load and ascending/descending detection ──
-  var issReady = false;  // true after first successful fetch
-  var prevLat  = null;   // previous latitude for direction detection
+  let issReady = false;  // true after first successful fetch
+  let prevLat  = null;   // previous latitude for direction detection
 
   // ── Compute approximate ISS ground track ──
   // Returns an array of {x, y} canvas pixel coordinates.
@@ -59,39 +59,39 @@
   // Splits into past (lower opacity) and future (higher opacity) segments.
   function computeGroundTrack(lat0, lon0, w, h) {
     // Determine ascending (northward) or descending (southward) pass
-    var ascending = (prevLat === null) ? true : (lat0 >= prevLat);
+    const ascending = (prevLat === null) ? true : (lat0 > prevLat);
 
     // Derive orbit phase angle u0 from current latitude
     // lat = arcsin(sin(INC) × sin(u))  →  sin(u) = sin(lat) / sin(INC)
-    var sinU0 = Math.sin(lat0 * Math.PI / 180) / ISS_SIN_INC;
+    let sinU0 = Math.sin(lat0 * Math.PI / 180) / ISS_SIN_INC;
     // Clamp to [-1, 1] to guard against float rounding at extreme latitudes
     sinU0 = Math.max(-1, Math.min(1, sinU0));
-    var u0 = Math.asin(sinU0); // radians, in [-π/2, π/2]
+    let u0 = Math.asin(sinU0); // radians, in [-π/2, π/2]
     if (!ascending) {
       u0 = Math.PI - u0; // flip to descending quadrant [π/2, 3π/2]
     }
 
-    var uRate = (2 * Math.PI) / ISS_T_MIN; // radians per minute
+    const uRate = (2 * Math.PI) / ISS_T_MIN; // radians per minute
 
     // Generate N evenly-spaced sample points across the time window
-    var N = 200;
-    var T_SPAN = 185; // minutes on each side of current position
-    var points = [];
+    const N      = 200;
+    const T_SPAN = 185; // minutes on each side of current position
+    const points = [];
 
-    for (var i = 0; i <= N; i++) {
-      var t = -T_SPAN + (2 * T_SPAN * i / N); // minutes from now
+    for (let i = 0; i <= N; i++) {
+      const t = -T_SPAN + (2 * T_SPAN * i / N); // minutes from now
 
-      var u   = u0 + uRate * t;
-      var lat = Math.asin(ISS_SIN_INC * Math.sin(u)) * 180 / Math.PI;
-      var lon = lon0 + ISS_LON_RATE * t;
+      const u   = u0 + uRate * t;
+      const lat = Math.asin(ISS_SIN_INC * Math.sin(u)) * 180 / Math.PI;
+      let lon   = lon0 + ISS_LON_RATE * t;
 
       // Normalise longitude to [-180, 180]
       lon = ((lon + 180) % 360 + 360) % 360 - 180;
 
-      var x = ((lon + 180) / 360) * w;
-      var y = ((90 - lat) / 180) * h;
+      const x = ((lon + 180) / 360) * w;
+      const y = ((90 - lat) / 180) * h;
 
-      points.push({ x: x, y: y, past: t < 0 });
+      points.push({ x, y, past: t < 0 });
     }
 
     return points;
@@ -107,16 +107,16 @@
     ctx.lineWidth   = 1.5;
     ctx.setLineDash([3, 7]);
     ctx.beginPath();
-    var penDown = false;
-    for (var i = 0; i < points.length; i++) {
-      var p = points[i];
+    let penDown = false;
+    for (let i = 0; i < points.length; i++) {
+      const p = points[i];
       if (!p.past) break; // stop at current position
       if (!penDown) {
         ctx.moveTo(p.x, p.y);
         penDown = true;
       } else {
         // Break path at meridian wrap (consecutive x-diff > half canvas width)
-        var prev = points[i - 1];
+        const prev = points[i - 1];
         if (Math.abs(p.x - prev.x) > w / 2) {
           ctx.moveTo(p.x, p.y);
         } else {
@@ -134,14 +134,14 @@
     ctx.setLineDash([4, 6]);
     ctx.beginPath();
     penDown = false;
-    for (var j = 0; j < points.length; j++) {
-      var q = points[j];
+    for (let j = 0; j < points.length; j++) {
+      const q = points[j];
       if (q.past) continue; // skip past portion
       if (!penDown) {
         ctx.moveTo(q.x, q.y);
         penDown = true;
       } else {
-        var qprev = points[j - 1];
+        const qprev = points[j - 1];
         // Guard: qprev might still be in past segment — use moveTo to start clean
         if (qprev.past || Math.abs(q.x - qprev.x) > w / 2) {
           ctx.moveTo(q.x, q.y);
@@ -231,19 +231,19 @@
       ctx.textAlign = 'center';
       ctx.fillText('Acquiring position\u2026', w / 2, h / 2);
     } else {
-      var lat = owData.iss.lat;
-      var lon = owData.iss.lon;
+      const lat = owData.iss.lat;
+      const lon = owData.iss.lon;
 
       // Compute and draw the orbital ground track
-      var trackPoints = computeGroundTrack(lat, lon, w, h);
+      const trackPoints = computeGroundTrack(lat, lon, w, h);
       drawGroundTrack(trackPoints, w);
 
       // ISS current position
-      var px = ((lon + 180) / 360) * w;
-      var py = ((90 - lat) / 180) * h;
+      const px = ((lon + 180) / 360) * w;
+      const py = ((90 - lat) / 180) * h;
 
       // Glow
-      var glow = ctx.createRadialGradient(px, py, 0, px, py, 24);
+      const glow = ctx.createRadialGradient(px, py, 0, px, py, 24);
       glow.addColorStop(0, 'rgba(83, 247, 238, 0.5)');
       glow.addColorStop(1, 'rgba(83, 247, 238, 0)');
       ctx.fillStyle = glow;
@@ -269,31 +269,31 @@
   // ── Fetch ISS position ──
   async function fetchISS() {
     try {
-      var r = await fetch('https://api.wheretheiss.at/v1/satellites/25544');
-      var d = await r.json();
+      const r = await fetch('https://api.wheretheiss.at/v1/satellites/25544');
+      const d = await r.json();
 
-      var lat = parseFloat(d.latitude || 0);
-      var lon = parseFloat(d.longitude || 0);
-      var alt = Number(d.altitude || 0).toFixed(1);
-      var vel = (Number(d.velocity || 0) / 3600).toFixed(2);
+      const lat = parseFloat(d.latitude || 0);
+      const lon = parseFloat(d.longitude || 0);
+      const alt = Number(d.altitude || 0).toFixed(1);
+      const vel = (Number(d.velocity || 0) / 3600).toFixed(2);
 
       // Update ascending/descending detection before marking ready
       prevLat = issReady ? owData.iss.lat : null;
       issReady = true;
 
-      owData.iss = { lat: lat, lon: lon, alt: parseFloat(alt), vel: parseFloat(vel) };
+      owData.iss = { lat, lon, alt: parseFloat(alt), vel: parseFloat(vel) };
 
-      document.getElementById('iss-lat').textContent = lat.toFixed(1) + '\u00b0';
-      document.getElementById('iss-lon').textContent = lon.toFixed(1) + '\u00b0';
+      document.getElementById('iss-lat').textContent = lat.toFixed(1) + '°';
+      document.getElementById('iss-lon').textContent = lon.toFixed(1) + '°';
       document.getElementById('iss-alt').textContent = alt + ' km';
       document.getElementById('iss-vel').textContent = vel + ' km/s';
 
-      var region = getRegionLabel(lat, lon);
+      const region = getRegionLabel(lat, lon);
       document.getElementById('iss-meta').textContent = region;
 
       // Last updated timestamp
-      var now = new Date();
-      var updEl = document.getElementById('iss-updated');
+      const now = new Date();
+      const updEl = document.getElementById('iss-updated');
       if (updEl) {
         updEl.textContent = 'Updated ' + pad(now.getUTCHours()) + ':' + pad(now.getUTCMinutes()) + ' UTC';
       }
