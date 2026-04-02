@@ -260,8 +260,8 @@
     }
   }
 
-  // Expose for neo.js to call when data refreshes
-  window.regenerateOrreryTrajectories = generateTrajectories;
+  // Register refresh hook — neo.js calls OW.hooks.neoRefresh() after each fetch
+  OW.hooks.neoRefresh = generateTrajectories;
 
   OW.initFns.push(initOrrery);
   OW.drawFns.push(drawOrrery);
