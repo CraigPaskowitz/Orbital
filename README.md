@@ -75,5 +75,3 @@ No backend, no frameworks—intentionally lightweight.
 ---
 
 This is an experiment—part exploration, part learning exercise.
-
-At the end of the day, just another human in the loop.
