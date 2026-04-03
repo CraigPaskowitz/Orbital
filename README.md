@@ -2,6 +2,8 @@
 
 Live demo: https://craigpaskowitz.github.io/Orbital/
 
+![Orbital Screenshot](./Orbital_Screenshot.jpg)
+
 A real-time space tracking interface exploring how live data can be turned into intuitive, engaging, and mobile-friendly experiences.
 
 ---
