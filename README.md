@@ -4,7 +4,11 @@ Live demo: https://craigpaskowitz.github.io/Orbital/
 
 ![Orbital Demo](./Solar_System_Demo.GIF)
 
-![Orbital Screenshot](./Orbital_Screenshot.jpg)
+![Orbital Screenshot](./Screenshot_ISS.jpg)
+
+![Orbital Screenshot](./Screenshot_crew.jpg)
+
+![Orbital Screenshot](./Screenshot_launches.jpg)
 
 A real-time space tracking interface exploring how live data can be turned into intuitive, engaging, and mobile-friendly experiences.
 
