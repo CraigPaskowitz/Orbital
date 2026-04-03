@@ -2,7 +2,7 @@
 
 Live demo: https://craigpaskowitz.github.io/Orbital/
 
-![Orbital Demo](./Solar_System_demo.gif)
+![Orbital Demo](./Solar_System_demo.GIF)
 
 ![Orbital Screenshot](./Orbital_Screenshot.jpg)
 
