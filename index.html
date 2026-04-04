@@ -35,6 +35,34 @@
       </div>
     </header>
 
+    <!-- ── Command Strip: at-a-glance KPI row ── -->
+    <div class="command-strip" id="command-strip">
+      <div class="cs-cell">
+        <div class="cs-label">ISS Region</div>
+        <div class="cs-value" id="cs-iss-val">Acquiring…</div>
+      </div>
+      <div class="cs-divider"></div>
+      <div class="cs-cell">
+        <div class="cs-label">Crew in Orbit</div>
+        <div class="cs-value" id="cs-crew-val">—</div>
+      </div>
+      <div class="cs-divider"></div>
+      <div class="cs-cell">
+        <div class="cs-label">Near-Earth Objects · 7 Days</div>
+        <div class="cs-value" id="cs-neo-val">—</div>
+      </div>
+      <div class="cs-divider"></div>
+      <div class="cs-cell">
+        <div class="cs-label">Threat Index</div>
+        <div class="cs-value" id="cs-threat-val">—</div>
+      </div>
+      <div class="cs-divider"></div>
+      <div class="cs-cell">
+        <div class="cs-label">Next Launch</div>
+        <div class="cs-value cs-countdown" id="cs-launch-val">—</div>
+      </div>
+    </div>
+
     <!-- ── Event Horizon Bar ── -->
     <div id="event-horizon">
       <span id="eh-badge"></span>
@@ -157,7 +185,10 @@
             <div class="meta" id="threat-ts">Updating</div>
           </div>
           <div class="threat-card">
-            <div class="threat-score" id="threat-score">--</div>
+            <div class="threat-score-wrap">
+              <div class="threat-score" id="threat-score">--</div>
+              <div class="threat-score-sub">/&thinsp;100</div>
+            </div>
             <div class="threat-details">
               <div class="threat-status" id="threat-status">Acquiring</div>
               <p class="threat-desc" id="threat-desc">Fetching near-Earth object data…</p>
@@ -225,6 +256,7 @@
   <script src="./neo.js"></script>
   <script src="./neo-timeline.js"></script>
   <script src="./alerts.js"></script>
+  <script src="./command-strip.js"></script>
 <script data-pplx-inline-edit>
 (function(){
   if(window===window.top)return;

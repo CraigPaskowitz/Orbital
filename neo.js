@@ -128,7 +128,7 @@
 
       // ── NEO compact watchlist ──
       const phaCountEl = document.getElementById('neo-pha-count');
-      if (phaCountEl) phaCountEl.textContent = `${phaCt} PHA active`;
+      if (phaCountEl) phaCountEl.textContent = `${phaCt} hazardous`;
 
       const rowsEl = document.getElementById('neo-rows');
       if (rowsEl) {
@@ -143,7 +143,7 @@
           return `<div class="neo-row ${sev}">
             <div>
               <div class="neo-name">${esc(n.name)}</div>
-              <div class="neo-sub">${n.hazardous ? 'PHA' : 'Nominal'} · ${mass}</div>
+              <div class="neo-sub">${n.hazardous ? 'Potentially Hazardous' : 'Nominal'} · ${mass}</div>
               <div class="neo-actions">
                 <a class="linkout" href="${sbdbUrl}" target="_blank" rel="noopener noreferrer">JPL ↗</a>
               </div>

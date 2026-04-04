@@ -45,8 +45,8 @@
       return n.hazardous && new Date(n.approachTime) <= cutoff24h;
     });
     if (pha24) {
-      badge.className = 'eh-badge pha';
-      badge.textContent = 'PHA';
+      badge.className = 'eh-badge hazardous';
+      badge.textContent = 'HAZARDOUS';
       text.textContent = pha24.name + ' \u00b7 ' +
                          pha24.ld.toFixed(2) + ' LD \u2014 approach ' +
                          humanDateUTC(pha24.date);

@@ -155,10 +155,10 @@ body::before {
   letter-spacing: 0.1em;
   flex-shrink: 0;
 }
-.eh-badge.launch { background: var(--amber-soft);       color: var(--amber-strong); }
-.eh-badge.pha    { background: rgba(255,80,60,0.15);    color: #ff5040; }
-.eh-badge.neo    { background: rgba(128,255,170,0.10);  color: #80ffaa; }
-.eh-badge.iss    { background: var(--cyan-dim);         color: var(--cyan); }
+.eh-badge.launch    { background: var(--amber-soft);       color: var(--amber-strong); }
+.eh-badge.hazardous { background: rgba(255,80,60,0.15);    color: #ff5040; }
+.eh-badge.neo       { background: rgba(128,255,170,0.10);  color: #80ffaa; }
+.eh-badge.iss       { background: var(--cyan-dim);         color: var(--cyan); }
 
 .hdr-brand {
   display: flex;
@@ -712,8 +712,10 @@ body::before {
   line-height: 0.9;
   color: var(--cyan-strong);
   text-shadow: 0 0 12px rgba(83, 247, 238, 0.15);
-  flex-shrink: 0;
 }
+
+/* .threat-score-wrap holds the score + "/100" sub-label and carries flex-shrink */
+.threat-score-wrap { flex-shrink: 0; }
 
 .threat-details {
   flex: 1;
@@ -955,6 +957,111 @@ body::before {
 
   #event-horizon { height: 26px; font-size: 10px; gap: 7px; }
   .eh-badge { font-size: 8px; padding: 1px 5px; }
+}
+
+/* ==========================================================================
+   Command Strip
+   ========================================================================== */
+.command-strip {
+  display: flex;
+  align-items: stretch;
+  margin-bottom: 14px;
+  background: rgba(3, 8, 12, 0.7);
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.cs-cell {
+  flex: 1;
+  padding: 9px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.cs-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.cs-value {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--cyan-strong);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cs-countdown {
+  color: var(--amber-strong);
+}
+
+.cs-divider {
+  width: 1px;
+  background: var(--border-soft);
+  flex-shrink: 0;
+  margin: 8px 0;
+}
+
+/* Threat score: score + "/100" sub-label */
+.threat-score-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.threat-score-sub {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text-faint);
+  letter-spacing: 0.04em;
+  align-self: flex-end;
+  padding-bottom: 5px;
+}
+
+/* Responsive: command strip collapses to 2-col grid on tablet */
+@media (max-width: 900px) {
+  .command-strip {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .cs-divider { display: none; }
+  .cs-cell {
+    border-bottom: 1px solid var(--border-soft);
+    border-right: 1px solid var(--border-soft);
+  }
+  .cs-cell:nth-child(even) { border-right: none; }
+  .cs-cell:nth-last-child(-n+2) { border-bottom: none; }
+}
+
+/* Responsive: command strip on mobile */
+@media (max-width: 600px) {
+  .command-strip {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-radius: 8px;
+    margin-bottom: 10px;
+  }
+  .cs-divider { display: none; }
+  .cs-cell {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-soft);
+    border-right: 1px solid var(--border-soft);
+  }
+  .cs-cell:nth-child(even) { border-right: none; }
+  .cs-cell:nth-last-child(-n+2) { border-bottom: none; }
+  .cs-label { font-size: 8px; }
+  .cs-value { font-size: 11px; }
 }
 
 /* ── Canvas Tooltip ── */
