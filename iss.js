@@ -294,6 +294,7 @@
       prevLat = issReady ? owData.iss.lat : null;
       issReady = true;
 
+      /** @type {ISSData} */
       owData.iss = { lat, lon, alt: parseFloat(alt), vel: parseFloat(vel) };
 
       document.getElementById('iss-lat').textContent = lat.toFixed(1) + '°';

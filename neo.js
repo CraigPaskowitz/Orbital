@@ -31,6 +31,7 @@
       if (!r.ok) throw new Error('HTTP ' + r.status);
       const data = await r.json();
 
+      /** @type {NEOObject[]} */
       const all = [];
       Object.keys(data.near_earth_objects || {}).sort().forEach(day => {
         (data.near_earth_objects[day] || []).forEach(n => {
@@ -93,6 +94,7 @@
       }
 
       // ── Update shared data store ──
+      /** @type {NEOData} */
       owData.neo = {
         objects: all,
         totalCount: all.length,

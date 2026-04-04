@@ -3,7 +3,74 @@
 // Clock, starfield, animation loop, module orchestration
 // ==========================================================================
 
+// ==========================================================================
+// Type definitions — JSDoc only, no build step required.
+// VS Code reads these across the entire project when checkJs is enabled.
+// ==========================================================================
+
+/**
+ * A single Near-Earth Object from the NASA NeoWs feed.
+ * @typedef {Object} NEOObject
+ * @property {string}  name        - Object designation, parentheses stripped
+ * @property {string}  date        - Close approach date "YYYY-MM-DD"
+ * @property {number}  ld          - Miss distance in lunar distances
+ * @property {number}  missKm      - Miss distance in kilometres
+ * @property {number}  size        - Mean estimated diameter in metres
+ * @property {number}  velocity    - Relative velocity km/s at close approach
+ * @property {boolean} hazardous   - True if NASA classifies as potentially hazardous
+ * @property {string|null} nasaUrl - NASA JPL small-body page URL, or null
+ * @property {string}  approachTime - Raw close-approach string from API
+ * @property {number}  approachMs  - Close-approach time as a UTC millisecond timestamp
+ */
+
+/**
+ * The live NEO dataset written by neo.js.
+ * @typedef {Object} NEOData
+ * @property {NEOObject[]} objects        - All NEOs for the 7-day window, sorted by ld ascending
+ * @property {number}      totalCount     - Total object count (same as objects.length)
+ * @property {number}      hazardousCount - Count of objects where hazardous === true
+ * @property {number|null} minMissKm      - Closest miss distance in km, or null if no data
+ * @property {Date|null}   lastUpdated    - Timestamp of the most recent successful fetch
+ */
+
+/**
+ * Live ISS telemetry written by iss.js every ~8 seconds.
+ * @typedef {Object} ISSData
+ * @property {number} lat - Current latitude in decimal degrees (−90 to +90)
+ * @property {number} lon - Current longitude in decimal degrees (−180 to +180)
+ * @property {number} alt - Altitude in kilometres above sea level
+ * @property {number} vel - Velocity in km/h
+ */
+
+/**
+ * Next-launch summary written by launches.js after a successful API fetch.
+ * @typedef {Object} LaunchData
+ * @property {string|null} nextName    - Full mission name, e.g. "Starlink Group 6-35"
+ * @property {string|null} nextNet     - ISO 8601 NET (No Earlier Than) timestamp string
+ * @property {string|null} nextVehicle - Rocket/vehicle name, e.g. "Falcon 9 Block 5"
+ */
+
+/**
+ * The shared cross-module data bus. Modules write; others read.
+ * All properties start undefined and are populated asynchronously.
+ * @typedef {Object} OWData
+ * @property {NEOData}     [neo]     - Populated by neo.js after the NASA NeoWs fetch
+ * @property {ISSData}     [iss]     - Populated by iss.js, refreshed every ~8 seconds
+ * @property {LaunchData}  [launches] - Populated by launches.js after the SpaceDevs fetch
+ */
+
+/**
+ * The global app namespace. Modules register draw/init functions here.
+ * @typedef {Object} OWNamespace
+ * @property {Array<function(number, number): void>} drawFns  - Called every RAF frame: fn(timeSec, dt)
+ * @property {Array<function(): void>}               initFns  - Called on init and resize
+ * @property {Object.<string, boolean>}              dataReady - Cross-module data availability signals
+ * @property {Object.<string, function>}             hooks    - Named callbacks, e.g. neoRefresh, neoTimeline
+ * @property {{ show: function(number, number, string): void, hide: function(): void }} [tooltip]
+ */
+
 // ── Global app namespace — modules register their draw/init functions ──
+/** @type {OWNamespace} */
 const OW = {
   drawFns: [],   // functions called every animation frame: fn(timeSec, dt)
   initFns: [],   // functions called on init and resize: fn()
@@ -12,6 +79,7 @@ const OW = {
 };
 
 // ── Shared data store — modules write here, others read ──
+/** @type {OWData} */
 window.owData = {
   neo: { objects: [], totalCount: 0, hazardousCount: 0, lastUpdated: null },
   iss: { lat: 0, lon: 0, alt: 0, vel: 0 },

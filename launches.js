@@ -101,6 +101,7 @@
 
       // Successful fetch — save to cache, expose to owData, and render
       saveCache(results);
+      /** @type {LaunchData} */
       owData.launches = {
         nextName:    results[0].name || null,
         nextNet:     results[0].net  || null,
